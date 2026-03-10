@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="Mx">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control de Compras y Proveedores</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="img/iconoApp.png">
+    <meta name="theme-color" content="#4f46e5">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate-50 */
+            color: #334155; /* Slate-700 */
+        }
+        /* Animaciones suaves */
+        .transition-all-300 { transition: all 0.3s ease; }
+        
+        /* Navegación */
+        .tab-button.active {
+            background-color: #4f46e5; /* Indigo-600 */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+        }
+        .tab-button.active:hover {
+            color: white !important;
+        }
+        .tab-button {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+        }
+
+        /* Semáforo */
+        .semaphore-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+        .semaphore-yellow { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .semaphore-red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+        
+        /* Tarjetas */
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Inputs */
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #6366f1;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Botones */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-primary { background-color: #4f46e5; } /* Indigo */
+        .btn-primary:hover { background-color: #4338ca; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); }
+        
+        .btn-danger { background-color: #ef4444; }
+        .btn-danger:hover { background-color: #dc2626; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3); }
+        
+        .btn-secondary { background-color: #64748b; }
+        .btn-secondary:hover { background-color: #475569; }
+        
+        .btn-success { background-color: #10b981; }
+        .btn-success:hover { background-color: #059669; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
+
+        /* Estilos de la Calculadora */
+        .calculator {
+            background-color: #1e293b; /* Slate-800 */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .calculator-screen {
+            background-color: #0f172a; /* Slate-900 */
+            color: #fff;
+            font-size: 2.5rem;
+            padding: 1rem;
+            text-align: right;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+        .calculator-keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+        .calculator-key {
+            border: none;
+            height: 3.5rem;
+            border-radius: 50%; /* Botones redondos */
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #334155; /* Slate-700 */
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .calculator-key:hover { background-color: #475569; transform: translateY(-2px); }
+        .calculator-key:active { transform: translateY(0); }
+        
+        .calculator-key.operator { background-color: #f59e0b; color: white; } /* Amber */
+        .calculator-key.operator:hover { background-color: #d97706; }
+        
+        .calculator-key.equal-sign { 
+            background-color: #4f46e5; /* Indigo */
+            color: white; 
+            grid-column: span 2; 
+            border-radius: 1rem; /* Píldora para el igual */
+            width: 100%;
+        }
+        .calculator-key.equal-sign:hover { background-color: #4338ca; }
+        
+        .calculator-key.clear { background-color: #ef4444; color: white; }
+        .calculator-key.clear:hover { background-color: #dc2626; }
+        
+        .calculator-key[value="0"] {
+             grid-column: span 2;
+             border-radius: 1rem;
+             width: 100%;
+        }
+        
+        /* Notificaciones Toast */
+        .toast {
+            min-width: 300px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background-color: #10b981; }
+        .toast-error { background-color: #ef4444; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div class="flex items-center">
+                <img src="img/Logo_HEPA.png" alt="Logo HEPA" class="h-12 sm:h-16 mr-4 object-contain">
+                <div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">REFACCIONARIAS HEPA</h1>
+                    <p class="text-slate-500 mt-1 text-base sm:text-lg">Gestión inteligente de compras y proveedores.</p>
+                </div>
+            </div>
+            <div class="mt-4 sm:mt-0 bg-white p-2 rounded-lg shadow-sm border border-gray-100">
+                <span class="text-sm font-medium text-gray-500 px-2"><i class="far fa-calendar-alt mr-2"></i>Hoy: <span class="text-indigo-600 font-bold" id="fecha-header"></span></span>
+            </div>
+        </header>
+
+        <!-- Pestañas de Navegación -->
+        <div class="mb-8">
+            <nav class="flex flex-wrap gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100" aria-label="Tabs">
+                <button onclick="changeTab('dashboard')" class="tab-button active flex-grow sm:flex-grow-0 py-2 px-3 sm:py-2.5 sm:px-5 font-medium text-sm text-gray-500 hover:text-indigo-600"><i class="fas fa-tachometer-alt mr-2"></i>Dashboard</button>
+                <button onclick="changeTab('compras')" class="tab-button flex-grow sm:flex-grow-0 py-2 px-3 sm:py-2.5 sm:px-5 font-medium text-sm text-gray-500 hover:text-indigo-600"><i class="fas fa-shopping-cart mr-2"></i>Compras</button>
+                <button onclick="changeTab('proveedores')" class="tab-button flex-grow sm:flex-grow-0 py-2 px-3 sm:py-2.5 sm:px-5 font-medium text-sm text-gray-500 hover:text-indigo-600"><i class="fas fa-users mr-2"></i>Proveedores</button>
+                <button onclick="changeTab('reportes')" class="tab-button flex-grow sm:flex-grow-0 py-2 px-3 sm:py-2.5 sm:px-5 font-medium text-sm text-gray-500 hover:text-indigo-600"><i class="fas fa-chart-pie mr-2"></i>Reportes</button>
+            </nav>
+        </div>
+
+        <!-- Contenido de las Pestañas -->
+        <main>
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Semáforo y Pagos -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center"><i class="fas fa-traffic-light mr-2 text-indigo-500"></i>Semáforo de Gasto</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="gasto-fecha" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Fecha de análisis</label>
+                                <input type="date" id="gasto-fecha" class="input-field">
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-2">Gasto Total del Día:</p>
+                                <div id="gasto-total" class="text-4xl sm:text-5xl font-extrabold text-center p-6 sm:p-8 rounded-2xl shadow-inner bg-gray-50 transition-all duration-500">$0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card p-6">
+                        <h2 class="text-lg font-bold text-slate-700 mb-4 flex items-center"><i class="fas fa-money-bill-wave mr-2 text-indigo-500"></i>Consulta de Pagos</h2>
+                         <div class="space-y-4">
+                            <div>
+                                <label for="pago-fecha" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Fecha de Vencimiento</label>
+                                <input type="date" id="pago-fecha" class="input-field">
+                            </div>
+                            <div class="flex items-center justify-between bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                                <p class="text-sm font-medium text-indigo-700">Proveedores a pagar:</p>
+                                <p id="proveedores-a-pagar" class="text-3xl font-bold text-indigo-900">0</p>
+                            </div>
+                            <div class="mt-4">
+                                <h3 class="font-semibold text-gray-700 text-sm border-b pb-2 mb-2">Detalle:</h3>
+                                <ul id="lista-pagos" class="mt-2 text-sm text-gray-600 list-disc list-inside space-y-1"></ul>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Alertas de Pago -->
+                    <div class="md:col-span-2 card p-6 bg-gradient-to-r from-indigo-50 to-white border border-indigo-100">
+                        <h2 class="text-lg font-bold text-indigo-800 mb-4 flex items-center"><i class="fas fa-bell mr-2 animate-pulse"></i>Alertas: Pagos Próximos (7 días)</h2>
+                        <ul id="alertas-pago" class="space-y-2 text-sm">
+                            <!-- Alertas se insertarán aquí -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- Calculadora -->
+                <div class="lg:col-span-1">
+                     <div class="calculator">
+                        <div class="flex justify-between items-center mb-4 px-2">
+                            <span class="text-gray-400 text-xs font-bold tracking-widest uppercase">Calculadora</span>
+                            <i class="fas fa-calculator text-gray-500"></i>
+                        </div>
+                        <div id="calculator-screen" class="calculator-screen">0</div>
+                        <div class="calculator-keys">
+                            <button class="calculator-key" value="7">7</button>
+                            <button class="calculator-key" value="8">8</button>
+                            <button class="calculator-key" value="9">9</button>
+                            <button class="calculator-key operator" value="/">&divide;</button>
+                            <button class="calculator-key" value="4">4</button>
+                            <button class="calculator-key" value="5">5</button>
+                            <button class="calculator-key" value="6">6</button>
+                            <button class="calculator-key operator" value="*">&times;</button>
+                            <button class="calculator-key" value="1">1</button>
+                            <button class="calculator-key" value="2">2</button>
+                            <button class="calculator-key" value="3">3</button>
+                            <button class="calculator-key operator" value="-">-</button>
+                            <button class="calculator-key clear" value="clear">C</button>
+                            <button class="calculator-key" value="%">%</button>
+                            <button class="calculator-key" value=".">.</button>
+                            <button class="calculator-key operator" value="+">+</button>
+                            <button class="calculator-key" value="0">0</button>
+                            <button class="calculator-key equal-sign" value="=">=</button>
+                        </div>
+                     </div>
+                </div>
+            </div>
+
+            <!-- Compras Diarias -->
+            <div id="compras" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 card p-6">
+                        <h2 id="form-compra-titulo" class="text-xl font-bold text-slate-700 mb-6">Registrar Compra</h2>
+                        <form id="form-compra" class="space-y-4">
+                            <input type="hidden" id="compra-id">
+                            <div>
+                                <label for="compra-fecha" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Fecha</label>
+                                <input type="date" id="compra-fecha" class="input-field" required>
+                            </div>
+                            <div>
+                                <label for="compra-proveedor" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Proveedor</label>
+                                <select id="compra-proveedor" class="input-field" required><option value="">Seleccione un proveedor</option></select>
+                            </div>
+                            <div>
+                                <label for="compra-monto" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Monto</label>
+                                <input type="number" id="compra-monto" min="0.01" step="0.01" class="input-field" placeholder="Ej: 1500.50" required>
+                            </div>
+                            <button type="submit" id="btn-submit-compra" class="btn btn-primary w-full"><i class="fas fa-plus-circle mr-2"></i>Agregar Compra</button>
+                            <button type="button" id="btn-cancelar-compra" class="btn btn-secondary w-full hidden"><i class="fas fa-times mr-2"></i>Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 card p-6">
+                        <h2 class="text-xl font-bold text-slate-700 mb-6">Historial de Compras</h2>
+                        
+                        <!-- Filtros de Búsqueda -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                            <div class="flex-1">
+                                <label for="filtro-compras-fecha" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Filtrar por Fecha</label>
+                                <input type="date" id="filtro-compras-fecha" class="input-field">
+                            </div>
+                            <div class="flex-1">
+                                <label for="filtro-compras-proveedor" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Buscar Proveedor</label>
+                                <input type="text" id="filtro-compras-proveedor" class="input-field" placeholder="Escribe para buscar...">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Fecha Compra</th>
+                                        <th scope="col" class="px-6 py-3">Proveedor</th>
+                                        <th scope="col" class="px-6 py-3">Monto</th>
+                                        <th scope="col" class="px-6 py-3">Fecha Pago</th>
+                                        <th scope="col" class="px-6 py-3">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-compras"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proveedores -->
+            <div id="proveedores" class="tab-content hidden">
+                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 card p-6">
+                        <h2 id="form-proveedor-titulo" class="text-xl font-bold text-slate-700 mb-6">Nuevo Proveedor</h2>
+                        <form id="form-proveedor" class="space-y-4">
+                            <input type="hidden" id="proveedor-id">
+                            <div>
+                                <label for="proveedor-nombre" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Empresa / Nombre</label>
+                                <input type="text" id="proveedor-nombre" class="input-field" placeholder="Nombre de la empresa" required>
+                            </div>
+                            <div>
+                                <label for="proveedor-credito" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Días de Crédito</label>
+                                <input type="number" id="proveedor-credito" min="0" class="input-field" placeholder="Ej: 30 (0 si es de contado)" required>
+                            </div>
+                            <button type="submit" id="btn-submit-proveedor" class="btn btn-primary w-full"><i class="fas fa-user-plus mr-2"></i>Agregar Proveedor</button>
+                            <button type="button" id="btn-cancelar-proveedor" class="btn btn-secondary w-full hidden"><i class="fas fa-times mr-2"></i>Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 card p-6">
+                        <h2 class="text-xl font-bold text-slate-700 mb-6">Directorio de Proveedores</h2>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Proveedor</th>
+                                        <th scope="col" class="px-6 py-3">Días de Crédito</th>
+                                        <th scope="col" class="px-6 py-3">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-proveedores"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reportes -->
+            <div id="reportes" class="tab-content hidden">
+                <div class="card p-6">
+                    <h2 class="text-xl font-bold text-slate-700 mb-6">Generador de Reportes</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-6 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                        <div>
+                            <label for="reporte-proveedor" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Proveedor</label>
+                            <select id="reporte-proveedor" class="input-field">
+                                <option value="todos">Todos los proveedores</option>
+                            </select>
+                        </div>
+                         <div>
+                            <label for="reporte-inicio" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Fecha Inicio</label>
+                            <input type="date" id="reporte-inicio" class="input-field">
+                        </div>
+                         <div>
+                            <label for="reporte-fin" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Fecha Fin</label>
+                            <input type="date" id="reporte-fin" class="input-field">
+                        </div>
+                        <button id="btn-generar-reporte" class="btn btn-primary w-full">Generar</button>
+                    </div>
+
+                    <div id="resultado-reporte">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-700">Resultados</h3>
+                                <p id="reporte-total" class="text-2xl font-bold text-indigo-600"></p>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:justify-end gap-3">
+                                <button id="btn-exportar-csv" class="btn btn-success w-full sm:w-auto"><i class="fas fa-file-csv mr-2"></i>Exportar CSV</button>
+                                <button id="btn-compartir-whatsapp" class="btn btn-success w-full sm:w-auto" style="background-color: #25D366;"><i class="fab fa-whatsapp mr-2"></i>Compartir</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                             <table class="w-full text-sm text-left text-gray-500">
+                                <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3">Fecha Compra</th>
+                                        <th scope="col" class="px-6 py-3">Proveedor</th>
+                                        <th scope="col" class="px-6 py-3">Monto</th>
+                                        <th scope="col" class="px-6 py-3">Fecha Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-reporte"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                     <p class="text-xs text-gray-500 mt-4 italic">Nota: La vinculación en tiempo real con Google Sheets requiere una configuración avanzada del lado del servidor. Utilice la opción "Exportar CSV" para importar sus datos fácilmente a cualquier hoja de cálculo.</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Contenedor de Notificaciones -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col items-end"></div>
+
+    <script>
+        // --- NAVEGACIÓN DE PESTAÑAS ---
+        const tabs = document.querySelectorAll('.tab-button');
+        const content = document.querySelectorAll('.tab-content');
+
+        // Fecha en header
+        document.getElementById('fecha-header').textContent = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        function changeTab(tabId) {
+            content.forEach(item => item.classList.add('hidden'));
+            tabs.forEach(item => item.classList.remove('active'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelector(`button[onclick="changeTab('${tabId}')"]`).classList.add('active');
+        }
+
+        // --- LÓGICA DE LA APLICACIÓN ---
+        // Cambiamos a type="module" para usar Firebase
+    </script>
+    <script type="module">
+        // --- IMPORTAR FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        
+        // --- CONFIGURACIÓN DE FIREBASE (¡PEGA TUS DATOS AQUÍ!) ---
+        
+        const firebaseConfig = {
+        apiKey: "AIzaSyBayBS7_yq4XFmHKXolBwVfAtp_o2P928Q",
+        authDomain: "gestioncomprashepa.firebaseapp.com",
+        projectId: "gestioncomprashepa",
+        storageBucket: "gestioncomprashepa.firebasestorage.app",
+        messagingSenderId: "290503198545",
+        appId: "1:290503198545:web:c5994d0d7bc1c5ebb2f570"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let proveedores = [];
+            let compras = [];
+            let editingProveedorId = null;
+            let editingCompraId = null;
+            let reporteActual = [];
+            let dbConnected = false;
+
+            const UIElements = {
+                formProveedor: document.getElementById('form-proveedor'),
+                tablaProveedores: document.getElementById('tabla-proveedores'),
+                formCompra: document.getElementById('form-compra'),
+                tablaCompras: document.getElementById('tabla-compras'),
+                compraProveedorSelect: document.getElementById('compra-proveedor'),
+                gastoFechaInput: document.getElementById('gasto-fecha'),
+                pagoFechaInput: document.getElementById('pago-fecha'),
+                gastoTotalDiv: document.getElementById('gasto-total'),
+                proveedoresAPagarP: document.getElementById('proveedores-a-pagar'),
+                listaPagosUl: document.getElementById('lista-pagos'),
+                alertasPagoUl: document.getElementById('alertas-pago'),
+                formProveedorTitulo: document.getElementById('form-proveedor-titulo'),
+                btnSubmitProveedor: document.getElementById('btn-submit-proveedor'),
+                btnCancelarProveedor: document.getElementById('btn-cancelar-proveedor'),
+                proveedorIdInput: document.getElementById('proveedor-id'),
+                formCompraTitulo: document.getElementById('form-compra-titulo'),
+                btnSubmitCompra: document.getElementById('btn-submit-compra'),
+                btnCancelarCompra: document.getElementById('btn-cancelar-compra'),
+                compraIdInput: document.getElementById('compra-id'),
+                compraFechaInput: document.getElementById('compra-fecha'),
+                filtroComprasFecha: document.getElementById('filtro-compras-fecha'),
+                filtroComprasProveedor: document.getElementById('filtro-compras-proveedor'),
+                // Reportes
+                reporteProveedorSelect: document.getElementById('reporte-proveedor'),
+                reporteInicioInput: document.getElementById('reporte-inicio'),
+                reporteFinInput: document.getElementById('reporte-fin'),
+                btnGenerarReporte: document.getElementById('btn-generar-reporte'),
+                tablaReporte: document.getElementById('tabla-reporte'),
+                reporteTotalP: document.getElementById('reporte-total'),
+                btnExportarCSV: document.getElementById('btn-exportar-csv'),
+                btnCompartirWhatsapp: document.getElementById('btn-compartir-whatsapp'),
+                // Calculadora
+                calculatorScreen: document.getElementById('calculator-screen'),
+                calculatorKeys: document.querySelector('.calculator-keys'),
+            };
+
+            // --- UTILIDAD DE NOTIFICACIONES (TOAST) ---
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                
+                let icon = 'check-circle';
+                if (type === 'error') icon = 'exclamation-triangle';
+                
+                toast.innerHTML = `<i class="fas fa-${icon} mr-2"></i>${message}`;
+                container.appendChild(toast);
+                
+                // Forzar reflow para animación
+                void toast.offsetWidth;
+                
+                toast.classList.add('show');
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+
+            // --- ESCUCHAS EN TIEMPO REAL (FIRESTORE) ---
+            // Cargar Proveedores
+            const qProveedores = query(collection(db, "proveedores"), orderBy("nombre"));
+            onSnapshot(qProveedores, (snapshot) => {
+                proveedores = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderAll(); // Se actualiza la UI automáticamente al recibir datos
+                if (!dbConnected) { showToast('Base de datos conectada exitosamente'); dbConnected = true; }
+            }, (error) => {
+                showToast('Error al conectar con la base de datos', 'error');
+                console.error("Error Firestore:", error);
+            });
+
+            // Cargar Compras
+            const qCompras = query(collection(db, "compras"), orderBy("fechaCompra", "desc"));
+            onSnapshot(qCompras, (snapshot) => {
+                compras = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                renderAll();
+            });
+
+            // --- FUNCIONES DE RENDERIZADO Y ACTUALIZACIÓN ---
+            function renderAll() {
+                renderProveedores();
+                renderCompras();
+                actualizarDashboard();
+                renderAlertas();
+                renderOpcionesReporte();
+            }
+
+            function renderProveedores() {
+                UIElements.tablaProveedores.innerHTML = '';
+                UIElements.compraProveedorSelect.innerHTML = '<option value="">Seleccione un proveedor</option>';
+                proveedores.forEach(prov => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bg-white border-b hover:bg-gray-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">${prov.nombre}</td>
+                        <td class="px-6 py-4">${prov.credito}</td>
+                        <td class="px-6 py-4 space-x-3">
+                            <button onclick="iniciarEdicionProveedor('${prov.id}')" class="text-indigo-500 hover:text-indigo-700"><i class="fas fa-edit"></i></button>
+                            <button onclick="eliminarProveedor('${prov.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+                    UIElements.tablaProveedores.appendChild(tr);
+                    
+                    const option = document.createElement('option');
+                    option.value = prov.nombre;
+                    option.textContent = prov.nombre;
+                    UIElements.compraProveedorSelect.appendChild(option);
+                });
+            }
+
+            function renderCompras() {
+                UIElements.tablaCompras.innerHTML = '';
+                
+                const fechaFiltro = UIElements.filtroComprasFecha.value;
+                const proveedorFiltro = UIElements.filtroComprasProveedor.value.toLowerCase().trim();
+
+                const comprasFiltradas = compras.filter(compra => {
+                    const coincideFecha = fechaFiltro ? compra.fechaCompra === fechaFiltro : true;
+                    const coincideProveedor = compra.proveedor.toLowerCase().includes(proveedorFiltro);
+                    return coincideFecha && coincideProveedor;
+                });
+
+                if (comprasFiltradas.length === 0) UIElements.tablaCompras.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No se encontraron compras con estos filtros.</td></tr>';
+
+                comprasFiltradas.forEach(compra => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bg-white border-b hover:bg-gray-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">${formatearFecha(compra.fechaCompra)}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">${compra.proveedor}</td>
+                        <td class="px-6 py-4">${formatearMoneda(compra.monto)}</td>
+                        <td class="px-6 py-4">${formatearFecha(compra.fechaPago)}</td>
+                         <td class="px-6 py-4 space-x-3">
+                            <button onclick="iniciarEdicionCompra('${compra.id}')" class="text-indigo-500 hover:text-indigo-700"><i class="fas fa-edit"></i></button>
+                            <button onclick="eliminarCompra('${compra.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    `;
+                    UIElements.tablaCompras.appendChild(tr);
+                });
+            }
+
+            // Eventos de Filtros
+            UIElements.filtroComprasFecha.addEventListener('change', renderCompras);
+            UIElements.filtroComprasProveedor.addEventListener('input', renderCompras);
+
+            function renderAlertas() {
+                UIElements.alertasPagoUl.innerHTML = '';
+                const hoy = new Date();
+                const unaSemana = new Date();
+                unaSemana.setDate(hoy.getDate() + 7);
+
+                const pagosProximos = compras.filter(c => {
+                    const fechaPago = new Date(c.fechaPago + 'T00:00:00');
+                    return fechaPago >= hoy && fechaPago <= unaSemana;
+                }).sort((a,b) => new Date(a.fechaPago) - new Date(b.fechaPago));
+
+                if (pagosProximos.length === 0) {
+                    UIElements.alertasPagoUl.innerHTML = '<li class="text-gray-500">No hay pagos programados para los próximos 7 días.</li>';
+                    return;
+                }
+                pagosProximos.forEach(pago => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-indigo-50';
+                    li.innerHTML = `
+                        <span>
+                            <span class="font-semibold text-indigo-700">${pago.proveedor}:</span> ${formatearMoneda(pago.monto)}
+                        </span>
+                        <span class="font-bold text-sm text-gray-600">${formatearFecha(pago.fechaPago)}</span>
+                    `;
+                    UIElements.alertasPagoUl.appendChild(li);
+                });
+            }
+            
+            // --- MANEJO DE PROVEEDORES (CRUD) ---
+            UIElements.formProveedor.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const nombre = document.getElementById('proveedor-nombre').value.trim();
+                const credito = parseInt(document.getElementById('proveedor-credito').value);
+
+                if (editingProveedorId) { // Editando
+                    const provRef = doc(db, "proveedores", editingProveedorId);
+                    await updateDoc(provRef, { nombre, credito });
+                } else { // Creando
+                    if (proveedores.some(p => p.nombre.toLowerCase() === nombre.toLowerCase())) {
+                        alert('Este proveedor ya existe.');
+                        return;
+                    }
+                    await addDoc(collection(db, "proveedores"), { nombre, credito });
+                }
+                
+                resetFormProveedor();
+            });
+            
+            window.iniciarEdicionProveedor = (id) => {
+                const prov = proveedores.find(p => p.id === id);
+                if (!prov) return;
+                editingProveedorId = id;
+                UIElements.proveedorIdInput.value = id;
+                document.getElementById('proveedor-nombre').value = prov.nombre;
+                document.getElementById('proveedor-credito').value = prov.credito;
+                
+                UIElements.formProveedorTitulo.textContent = 'Editar Proveedor';
+                UIElements.btnSubmitProveedor.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Cambios';
+                UIElements.btnCancelarProveedor.classList.remove('hidden');
+                changeTab('proveedores');
+            };
+
+            UIElements.btnCancelarProveedor.addEventListener('click', resetFormProveedor);
+
+            function resetFormProveedor() {
+                editingProveedorId = null;
+                UIElements.formProveedor.reset();
+                UIElements.formProveedorTitulo.textContent = 'Agregar Proveedor';
+                UIElements.btnSubmitProveedor.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Agregar Proveedor';
+                UIElements.btnCancelarProveedor.classList.add('hidden');
+            }
+
+            window.eliminarProveedor = async (id) => {
+                if (confirm(`¿Estás seguro de que quieres eliminar este proveedor?`)) {
+                    await deleteDoc(doc(db, "proveedores", id));
+                }
+            }
+
+            // --- MANEJO DE COMPRAS (CRUD) ---
+            UIElements.formCompra.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const fechaCompra = UIElements.compraFechaInput.value;
+                const proveedorNombre = document.getElementById('compra-proveedor').value;
+                const monto = parseFloat(document.getElementById('compra-monto').value);
+
+                const proveedor = proveedores.find(p => p.nombre === proveedorNombre);
+                if (!proveedor) { alert('Proveedor no encontrado.'); return; }
+
+                const fechaPago = calcularFechaPago(fechaCompra, proveedor.credito);
+
+                if (editingCompraId) { // Editando
+                     const compraRef = doc(db, "compras", editingCompraId);
+                     await updateDoc(compraRef, { fechaCompra, proveedor: proveedorNombre, monto, fechaPago });
+                } else { // Creando
+                    await addDoc(collection(db, "compras"), { fechaCompra, proveedor: proveedorNombre, monto, fechaPago });
+                }
+                resetFormCompra();
+            });
+
+             window.iniciarEdicionCompra = (id) => {
+                const compra = compras.find(c => c.id === id);
+                if (!compra) return;
+                editingCompraId = id;
+                UIElements.compraIdInput.value = id;
+                UIElements.compraFechaInput.value = compra.fechaCompra;
+                document.getElementById('compra-proveedor').value = compra.proveedor;
+                document.getElementById('compra-monto').value = compra.monto;
+
+                UIElements.formCompraTitulo.textContent = 'Editar Compra';
+                UIElements.btnSubmitCompra.innerHTML = '<i class="fas fa-save mr-2"></i>Guardar Cambios';
+                UIElements.btnCancelarCompra.classList.remove('hidden');
+                changeTab('compras');
+            };
+
+            UIElements.btnCancelarCompra.addEventListener('click', resetFormCompra);
+            
+             function resetFormCompra() {
+                editingCompraId = null;
+                UIElements.formCompra.reset();
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                UIElements.compraFechaInput.value = `${year}-${month}-${day}`;
+                UIElements.formCompraTitulo.textContent = 'Registrar Nueva Compra';
+                UIElements.btnSubmitCompra.innerHTML = '<i class="fas fa-plus-circle mr-2"></i>Agregar Compra';
+                UIElements.btnCancelarCompra.classList.add('hidden');
+            }
+
+            window.eliminarCompra = async (id) => {
+                 if (confirm(`¿Estás seguro de que quieres eliminar esta compra?`)) {
+                    await deleteDoc(doc(db, "compras", id));
+                }
+            }
+
+            // --- LÓGICA DEL DASHBOARD ---
+            UIElements.gastoFechaInput.addEventListener('change', actualizarDashboard);
+            UIElements.pagoFechaInput.addEventListener('change', actualizarDashboard);
+
+            function actualizarDashboard() {
+                // Semáforo
+                const fechaGasto = UIElements.gastoFechaInput.value;
+                if (fechaGasto) {
+                    const gastoDia = compras.filter(c => c.fechaCompra === fechaGasto).reduce((t, c) => t + c.monto, 0);
+                    UIElements.gastoTotalDiv.textContent = formatearMoneda(gastoDia);
+                    UIElements.gastoTotalDiv.className = 'text-4xl sm:text-5xl font-extrabold text-center p-6 sm:p-8 rounded-2xl shadow-inner bg-gray-50 transition-all duration-500'; // Reset
+                    if (gastoDia > 25000) UIElements.gastoTotalDiv.classList.add('semaphore-red');
+                    else if (gastoDia > 20000) UIElements.gastoTotalDiv.classList.add('semaphore-yellow');
+                    else UIElements.gastoTotalDiv.classList.add('semaphore-green');
+                }
+
+                // Pagos
+                const fechaPago = UIElements.pagoFechaInput.value;
+                UIElements.listaPagosUl.innerHTML = '<li>Selecciona una fecha para ver detalles.</li>';
+                if (fechaPago) {
+                    const pagosDia = compras.filter(c => c.fechaPago === fechaPago);
+                    UIElements.proveedoresAPagarP.textContent = pagosDia.length;
+                    UIElements.listaPagosUl.innerHTML = pagosDia.length > 0 ? '' : '<li>No hay pagos programados para esta fecha.</li>';
+                    pagosDia.forEach(p => {
+                        const li = document.createElement('li');
+                        li.textContent = `${p.proveedor} - ${formatearMoneda(p.monto)}`;
+                        UIElements.listaPagosUl.appendChild(li);
+                    });
+                }
+            }
+
+            // --- LÓGICA DE REPORTES ---
+            function renderOpcionesReporte() {
+                UIElements.reporteProveedorSelect.innerHTML = '<option value="todos">Todos los proveedores</option>';
+                 proveedores.forEach(prov => {
+                    const option = document.createElement('option');
+                    option.value = prov.nombre;
+                    option.textContent = prov.nombre;
+                    UIElements.reporteProveedorSelect.appendChild(option);
+                });
+            }
+
+            UIElements.btnGenerarReporte.addEventListener('click', () => {
+                const provFiltro = UIElements.reporteProveedorSelect.value;
+                const inicioFiltro = UIElements.reporteInicioInput.value;
+                const finFiltro = UIElements.reporteFinInput.value;
+
+                reporteActual = compras.filter(c => {
+                    let pasaProveedor = (provFiltro === 'todos' || c.proveedor === provFiltro);
+                    let pasaFecha = true;
+                    if (inicioFiltro && finFiltro) {
+                         pasaFecha = c.fechaCompra >= inicioFiltro && c.fechaCompra <= finFiltro;
+                    } else if (inicioFiltro) {
+                         pasaFecha = c.fechaCompra >= inicioFiltro;
+                    } else if (finFiltro) {
+                        pasaFecha = c.fechaCompra <= finFiltro;
+                    }
+                    return pasaProveedor && pasaFecha;
+                });
+                renderReporte(reporteActual);
+            });
+
+            function renderReporte(datos) {
+                UIElements.tablaReporte.innerHTML = '';
+                const total = datos.reduce((t, c) => t + c.monto, 0);
+                UIElements.reporteTotalP.textContent = `Total: ${formatearMoneda(total)}`;
+                
+                datos.forEach(compra => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bg-white border-b hover:bg-gray-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4">${formatearFecha(compra.fechaCompra)}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">${compra.proveedor}</td>
+                        <td class="px-6 py-4">${formatearMoneda(compra.monto)}</td>
+                        <td class="px-6 py-4">${formatearFecha(compra.fechaPago)}</td>
+                    `;
+                    UIElements.tablaReporte.appendChild(tr);
+                });
+            }
+
+            UIElements.btnExportarCSV.addEventListener('click', () => {
+                if(reporteActual.length === 0) {
+                    alert('Primero genera un reporte para poder exportarlo.');
+                    return;
+                }
+                let csvContent = "data:text/csv;charset=utf-8,Fecha Compra,Proveedor,Monto,Fecha Pago\n";
+                reporteActual.forEach(row => {
+                    csvContent += `${row.fechaCompra},${row.proveedor},${row.monto},${row.fechaPago}\n`;
+                });
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "reporte_compras.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            UIElements.btnCompartirWhatsapp.addEventListener('click', () => {
+                if(reporteActual.length === 0) {
+                    alert('Primero genera un reporte para poder compartirlo.');
+                    return;
+                }
+                const total = reporteActual.reduce((t, c) => t + c.monto, 0);
+                const prov = UIElements.reporteProveedorSelect.value;
+                const fechaReporte = new Date().toLocaleDateString('es-MX');
+                let texto = `*Resumen de Compras*\n\n`;
+                texto += `*Proveedor:* ${prov === 'todos' ? 'Todos' : prov}\n`;
+                texto += `*Total:* ${formatearMoneda(total)}\n`;
+                texto += `*Fecha de reporte:* ${fechaReporte}\n\n`;
+                texto += `_Generado desde el Panel de Control._`;
+                const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+                window.open(url, '_blank');
+            });
+
+            // --- LÓGICA DE LA CALCULADORA ---
+            let displayValue = '0';
+            let firstOperand = null;
+            let waitingForSecondOperand = false;
+            let operator = null;
+
+            function updateDisplay() {
+                UIElements.calculatorScreen.textContent = displayValue;
+            }
+
+            UIElements.calculatorKeys.addEventListener('click', (event) => {
+                const { target } = event;
+                if (!target.matches('button')) return;
+                
+                const { value } = target;
+                
+                if (target.classList.contains('operator')) {
+                    handleOperator(value);
+                } else if (value === '.') {
+                    inputDecimal(value);
+                } else if (value === 'clear') {
+                    resetCalculator();
+                } else if (value === '=') {
+                    handleEquals();
+                } else if (value === '%') {
+                    inputPercent();
+                } else {
+                    inputDigit(value);
+                }
+                updateDisplay();
+            });
+
+            function inputDigit(digit) {
+                if (waitingForSecondOperand) {
+                    displayValue = digit;
+                    waitingForSecondOperand = false;
+                } else {
+                    displayValue = displayValue === '0' ? digit : displayValue + digit;
+                }
+            }
+             function inputDecimal(dot) {
+                if (!displayValue.includes(dot)) {
+                    displayValue += dot;
+                }
+            }
+
+            function inputPercent() {
+                const value = parseFloat(displayValue);
+                
+                if (firstOperand != null && operator && (operator === '+' || operator === '-')) {
+                    // Cálculo de porcentaje sobre el primer operando (ej: 100 + 10% = 110)
+                    const result = (firstOperand * value) / 100;
+                    displayValue = String(parseFloat(result.toFixed(7)));
+                } else {
+                    // Conversión estándar a decimal (ej: 50% = 0.5)
+                    displayValue = String(parseFloat((value / 100).toFixed(7)));
+                }
+            }
+
+             function handleOperator(nextOperator) {
+                const inputValue = parseFloat(displayValue);
+                if (operator && waitingForSecondOperand) {
+                    operator = nextOperator;
+                    return;
+                }
+                if (firstOperand == null) {
+                    firstOperand = inputValue;
+                } else if (operator) {
+                    const result = performCalculation[operator](firstOperand, inputValue);
+                    displayValue = `${parseFloat(result.toFixed(7))}`;
+                    firstOperand = result;
+                }
+                waitingForSecondOperand = true;
+                operator = nextOperator;
+            }
+            const performCalculation = {
+                '/': (first, second) => first / second,
+                '*': (first, second) => first * second,
+                '+': (first, second) => first + second,
+                '-': (first, second) => first - second,
+            };
+
+            function handleEquals(){
+                 if (operator && !waitingForSecondOperand) {
+                    const inputValue = parseFloat(displayValue);
+                    const result = performCalculation[operator](firstOperand, inputValue);
+                    displayValue = `${parseFloat(result.toFixed(7))}`;
+                    firstOperand = null;
+                    operator = null;
+                    waitingForSecondOperand = false;
+                 }
+            }
+            function resetCalculator() {
+                displayValue = '0'; firstOperand = null; waitingForSecondOperand = false; operator = null;
+            }
+
+            // --- SOPORTE DE TECLADO FÍSICO ---
+            document.addEventListener('keydown', (event) => {
+                // Evitar que interfiera si el usuario escribe en un input
+                if (event.target.matches('input, select, textarea')) return;
+
+                const { key } = event;
+
+                if (/[0-9]/.test(key)) {
+                    inputDigit(key);
+                } else if (key === '.') {
+                    inputDecimal(key);
+                } else if (key === '=' || key === 'Enter') {
+                    event.preventDefault();
+                    handleEquals();
+                } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+                    resetCalculator();
+                } else if (['+', '-', '*', '/'].includes(key)) {
+                    handleOperator(key);
+                } else if (key === '%') {
+                    inputPercent();
+                } else if (key === 'Backspace') {
+                    if (!waitingForSecondOperand) displayValue = displayValue.length > 1 ? displayValue.slice(0, -1) : '0';
+                }
+                updateDisplay();
+            });
+
+            // --- FUNCIONES DE GUARDADO Y AUXILIARES ---
+            function calcularFechaPago(fechaInicio, diasCredito) {
+                const fecha = new Date(fechaInicio + 'T00:00:00');
+                fecha.setDate(fecha.getDate() + diasCredito);
+                return fecha.toISOString().split('T')[0];
+            }
+            function formatearMoneda(valor) { return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(valor); }
+            function formatearFecha(fechaString) {
+                const [year, month, day] = fechaString.split('-');
+                return `${day}/${month}/${year}`;
+            }
+
+            // --- EJECUCIÓN INICIAL ---
+            function init() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const today = `${year}-${month}-${day}`;
+                UIElements.gastoFechaInput.value = today;
+                UIElements.pagoFechaInput.value = today;
+                UIElements.compraFechaInput.value = today;
+                UIElements.filtroComprasFecha.value = today; // Filtro por defecto: Hoy
+                // renderAll ya no es necesario aquí porque onSnapshot lo llamará al cargar los datos
+                updateDisplay();
+            }
+
+            init();
+
+            // Exponer funciones al scope global para que funcionen los onclick del HTML
+            window.changeTab = changeTab;
+            window.iniciarEdicionProveedor = iniciarEdicionProveedor;
+            window.iniciarEdicionCompra = iniciarEdicionCompra;
+        });
+    </script>
+    <script>
+        // Registro del Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registrado', reg))
+                    .catch(err => console.log('Error al registrar SW', err));
+            });
+        }
+    </script>
+</body>
+</html>
