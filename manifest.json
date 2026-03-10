@@ -1,6 +1,6 @@
 {
   "name": "Control Compras HEPA",
-  "short_name": "HEPA App",
+  "short_name": "HEPA COMPRAS",
   "description": "Gestión inteligente de compras y proveedores para Refaccionarias HEPA.",
   "start_url": "./index.html",
   "scope": "./",
