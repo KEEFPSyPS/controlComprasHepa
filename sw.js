@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hepa-compras-v3';
+const CACHE_NAME = 'hepa-compras-v4';
 const APP_SHELL = [
   './',
   './index.html',
